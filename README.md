@@ -26,7 +26,11 @@ The service listens on `PORT` (defaults to `4000`) and exposes `POST /slack/comm
 | `SLACK_SIGNING_SECRET` | Verifies incoming slash-command requests. |
 | `SLACK_BOT_TOKEN` | Bot token (needs `chat:write`) used to DM the mentioned user. |
 | `SLACK_AUDIT_USER` | *(Optional)* Slack user ID that receives a copy of every anonymous message for control/auditing. |
+| `KEEPALIVE_URL` | *(Optional)* URL to ping (e.g. your own `/healthz`) so Render's free tier stays awake. |
+| `KEEPALIVE_INTERVAL_MINUTES` | *(Optional)* Minutes between keep-alive pings (default `10`). |
 | `PORT` | Optional port override (default `4000`). |
+
+If you deploy on Render's free plan, set `KEEPALIVE_URL` to the public `/healthz` endpoint Render exposes (or any lightweight endpoint) so the service pings itself every few minutes and avoids idling.
 
 ### Slack configuration
 

@@ -8,6 +8,8 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
+const keepAliveUrl = process.env.KEEPALIVE_URL;
+const keepAliveIntervalMinutes = Number(process.env.KEEPALIVE_INTERVAL_MINUTES || 10);
 
 const rawBodySaver = (req, res, buf) => {
   if (buf && buf.length) {
@@ -70,4 +72,19 @@ app.post('/slack/commands', slackRequestGuard, async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Amigo-No-Visible slash-command server listening on port ${port}`);
+
+  if (keepAliveUrl) {
+    const pingKeepAlive = async () => {
+      try {
+        await fetch(keepAliveUrl);
+        console.log(`[keepalive] Pinged ${keepAliveUrl}`);
+      } catch (error) {
+        console.error(`[keepalive] Failed to ping ${keepAliveUrl}`, error.message);
+      }
+    };
+
+    // Kick off immediately, then keep pinging so Render's free tier stays awake.
+    pingKeepAlive();
+    setInterval(pingKeepAlive, keepAliveIntervalMinutes * 60 * 1000);
+  }
 });
