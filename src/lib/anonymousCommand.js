@@ -35,7 +35,7 @@ const extractMentionAndMessage = (text = '') => {
   };
 };
 
-const postAnonymousDm = async ({ token, userId, message }) => {
+const postAnonymousDm = async ({ token, userId, message, blocks }) => {
   const conversation = await slackApiFetch('conversations.open', token, { users: userId });
   const channelId = conversation.channel && conversation.channel.id;
 
@@ -47,24 +47,26 @@ const postAnonymousDm = async ({ token, userId, message }) => {
     channel: channelId,
     text: message,
     unfurl_links: false,
-    blocks: [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `*Un amigo invisible quiere decirte algo:*\n>${message}`,
-        },
-      },
-      {
-        type: 'context',
-        elements: [
-          {
+    blocks:
+      blocks ||
+      [
+        {
+          type: 'section',
+          text: {
             type: 'mrkdwn',
-            text: 'Enviado vía Amigo-No-Visible',
+            text: `*Un amigo invisible quiere decirte algo:*\n>${message}`,
           },
-        ],
-      },
-    ],
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: 'Enviado vía Amigo-No-Visible',
+            },
+          ],
+        },
+      ],
   });
 };
 
@@ -104,6 +106,9 @@ const anonymousCommand = async (payload = {}) => {
     };
   }
 
+  const senderId = payload.user_id;
+  const senderName = payload.user_name;
+
   console.log(
     `Amigo-No-Visible: ${payload.user_name || payload.user_id || 'unknown'} -> ${
       mentionDetails.userId
@@ -115,6 +120,30 @@ const anonymousCommand = async (payload = {}) => {
     userId: mentionDetails.userId,
     message: mentionDetails.message,
   });
+
+  const auditUserId = process.env.SLACK_AUDIT_USER;
+
+  if (auditUserId) {
+    const senderLabel = senderName ? `${senderName} (${senderId})` : senderId || 'unknown';
+    try {
+      await postAnonymousDm({
+        token: botToken,
+        userId: auditUserId,
+        message: `Nuevo mensaje anónimo de ${senderLabel} para <@${mentionDetails.userId}>`,
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `*Control Amigo-No-Visible*\n• De: ${senderLabel}\n• Para: <@${mentionDetails.userId}>\n• Mensaje:\n>${mentionDetails.message}`,
+            },
+          },
+        ],
+      });
+    } catch (auditError) {
+      console.error('Failed to send audit DM', auditError);
+    }
+  }
 
   return {
     response_type: 'ephemeral',

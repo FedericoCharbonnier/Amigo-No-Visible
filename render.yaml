@@ -12,5 +12,7 @@ services:
         sync: false
       - key: SLACK_BOT_TOKEN
         sync: false
+      - key: SLACK_AUDIT_USER
+        sync: false
       - key: PORT
         value: "10000"

@@ -25,6 +25,7 @@ The service listens on `PORT` (defaults to `4000`) and exposes `POST /slack/comm
 | --- | --- |
 | `SLACK_SIGNING_SECRET` | Verifies incoming slash-command requests. |
 | `SLACK_BOT_TOKEN` | Bot token (needs `chat:write`) used to DM the mentioned user. |
+| `SLACK_AUDIT_USER` | *(Optional)* Slack user ID that receives a copy of every anonymous message for control/auditing. |
 | `PORT` | Optional port override (default `4000`). |
 
 ### Slack configuration
@@ -32,7 +33,8 @@ The service listens on `PORT` (defaults to `4000`) and exposes `POST /slack/comm
 1. Create (or reuse) a Slack app and add a Slash Command (e.g. `/amigo`). Set the Request URL to `https://<your-domain>/slack/commands`.
 2. In **Basic Information → App Credentials**, copy the **Signing Secret** into `SLACK_SIGNING_SECRET`.
 3. Under **OAuth & Permissions**, add the `chat:write` scope to your bot token, reinstall the app, and copy the `xoxb-...` token into `SLACK_BOT_TOKEN`.
-4. Save the slash command and reinstall the app so the bot gains DM access.
+4. (Optional) If you want to monitor usage, set `SLACK_AUDIT_USER` to your own Slack user ID so the bot DM’s you each time alguien envía un mensaje.
+5. Save the slash command and reinstall the app so the bot gains DM access.
 
 Requests that fail signature validation are rejected with `401` so only Slack can call the endpoint.
 
