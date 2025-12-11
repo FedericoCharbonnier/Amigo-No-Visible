@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: amigo-no-visible
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: "npm install"
+    startCommand: "npm run start"
+    autoDeploy: true
+    envVars:
+      - key: SLACK_SIGNING_SECRET
+        sync: false
+      - key: SLACK_BOT_TOKEN
+        sync: false
+      - key: PORT
+        value: "10000"
