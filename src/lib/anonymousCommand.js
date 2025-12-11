@@ -104,6 +104,12 @@ const anonymousCommand = async (payload = {}) => {
     };
   }
 
+  console.log(
+    `Amigo-No-Visible: ${payload.user_name || payload.user_id || 'unknown'} -> ${
+      mentionDetails.userId
+    } | ${mentionDetails.message}`
+  );
+
   await postAnonymousDm({
     token: botToken,
     userId: mentionDetails.userId,
