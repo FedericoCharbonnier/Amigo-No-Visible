@@ -8,6 +8,8 @@ services:
     startCommand: "npm run start"
     autoDeploy: true
     envVars:
+      - key: NODE_VERSION
+        value: "22"
       - key: SLACK_SIGNING_SECRET
         sync: false
       - key: SLACK_BOT_TOKEN
